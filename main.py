@@ -1,6 +1,7 @@
 import pandas as pd
 import glob
 import csv
+import json
 
 
 def split_string(string: str):
@@ -24,15 +25,16 @@ def save_to_csv(data, path):
 
 
 def main():
-    svod = pd.read_excel('svod.xlsx', header=1, usecols='B:I')
-    svod = svod.to_dict()
-    for file in scan_folder():
+    settings = json.load(open('settings.json'))
+    svod = pd.read_excel('svod.xlsx', header=1, usecols='B:I').to_dict()
+    for file in scan_folder(settings['scan_folder']):
         data = []
         print('Open file: ', file)
         year = file[0:4]
         territoria = file.split('_')[1]
         for element in zip(svod['Показатель'].values(), svod['Лист'].values(),
-                           svod['Раздел'].values(), svod['Ячейка'].values(), svod['Тип поселения'].values()):
+                           svod['Раздел'].values(), svod['Ячейка'].values(),
+                           svod['Тип поселения'].values()):
             if element[4].upper() == territoria.upper():
                 column, row = split_string(element[3])
                 df = pd.read_excel(file, usecols=column, sheet_name=element[1])
